@@ -69,7 +69,8 @@
             const comentarios = fila[3];// Columna D
             const mozo = fila[4];       // Columna E
 
-            if (!numero) return; // saltar filas vacías
+            // Validación más estricta: saltar filas vacías o encabezados duplicados
+            if (!numero || numero.trim() === "" || numero.toLowerCase().includes("número de talonario")) return;
 
             const div = document.createElement("div");
             div.className = "card";
@@ -82,7 +83,7 @@
             // Procesar pedido en lista
             let pedidoHTML = "<ul>";
             if (pedidoRaw) {
-              const items = pedidoRaw.split(","); // separar por coma
+              const items = pedidoRaw.split(",");
               items.forEach(item => {
                 pedidoHTML += `<li>${item.trim()}</li>`;
               });
