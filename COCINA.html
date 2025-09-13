@@ -26,9 +26,11 @@
       border-radius: 15px;
       padding: 20px;
       box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+      position: relative;
+      transition: border 0.3s;
     }
     .sin-tacc {
-      background-color: #8B0000; /* rojo oscuro para pedidos SIN TACC */
+      background-color: #8B0000; /* rojo oscuro */
     }
     .pedido {
       font-size: 2rem;
@@ -44,6 +46,28 @@
     .detalle ul {
       padding-left: 20px;
       margin: 5px 0;
+    }
+    .entregado {
+      border: 3px solid #00FF00; /* verde al marcar como entregado */
+    }
+    .sin-tacc-label {
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #fff;
+      background: #a00000;
+      padding: 2px 6px;
+      border-radius: 5px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .checkbox-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -63,21 +87,22 @@
           contenedor.innerHTML = "";
 
           results.data.forEach(fila => {
-            const numero = fila[0];     // Columna A
-            const sinTacc = fila[1];    // Columna B
-            const pedidoRaw = fila[2];  // Columna C
-            const comentarios = fila[3];// Columna D
-            const mozo = fila[4];       // Columna E
+            const numero = fila[0];     
+            const sinTacc = fila[1];    
+            const pedidoRaw = fila[2];  
+            const comentarios = fila[3];
+            const mozo = fila[4];       
 
-            // Validación más estricta: saltar filas vacías o encabezados duplicados
             if (!numero || numero.trim() === "" || numero.toLowerCase().includes("número de talonario")) return;
 
             const div = document.createElement("div");
             div.className = "card";
 
-            // Pintar de rojo si es SIN TACC
+            // Etiqueta sin TACC
+            let sinTaccLabel = "";
             if (sinTacc && sinTacc.toLowerCase() === "si") {
               div.classList.add("sin-tacc");
+              sinTaccLabel = `<div class="sin-tacc-label">PEDIDO SIN TACC</div>`;
             }
 
             // Procesar pedido en lista
@@ -90,12 +115,32 @@
             }
             pedidoHTML += "</ul>";
 
+            // Checkbox de entregado
+            const checkboxHTML = `
+              <div class="checkbox-container">
+                <input type="checkbox" class="entregado-checkbox">
+                <label>Entregado</label>
+              </div>
+            `;
+
             div.innerHTML = `
+              ${checkboxHTML}
               <div class="pedido">#${numero}</div>
+              ${sinTaccLabel}
               <div class="detalle"><strong>Pedido:</strong> ${pedidoHTML}</div>
               <div class="detalle"><strong>Comentarios:</strong> ${comentarios}</div>
               <div class="detalle"><strong>Mozo:</strong> ${mozo}</div>
             `;
+
+            // Manejar el click del checkbox
+            const checkbox = div.querySelector(".entregado-checkbox");
+            checkbox.addEventListener("change", () => {
+              if (checkbox.checked) {
+                div.classList.add("entregado");
+              } else {
+                div.classList.remove("entregado");
+              }
+            });
 
             contenedor.appendChild(div);
           });
@@ -104,7 +149,7 @@
     }
 
     cargarDatos();
-    setInterval(cargarDatos, 15000); // actualizar cada 15 segundos
+    setInterval(cargarDatos, 15000);
   </script>
 </body>
 </html>
