@@ -27,7 +27,7 @@
       padding: 20px;
       box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
       position: relative;
-      transition: border 0.3s;
+      transition: border 0.3s, opacity 0.3s;
     }
     .sin-tacc {
       background-color: #8B0000; /* rojo oscuro */
@@ -49,6 +49,7 @@
     }
     .entregado {
       border: 3px solid #00FF00; /* verde al marcar como entregado */
+      opacity: 0.6; /* difuminar */
     }
     .sin-tacc-label {
       font-weight: bold;
@@ -85,6 +86,9 @@
         complete: function(results) {
           const contenedor = document.getElementById("contenedor");
           contenedor.innerHTML = "";
+
+          const pendientes = [];
+          const entregados = [];
 
           results.data.forEach(fila => {
             const numero = fila[0];     
@@ -137,6 +141,9 @@
             if (localStorage.getItem(`entregado_${numero}`) === "true") {
               checkbox.checked = true;
               div.classList.add("entregado");
+              entregados.push(div); // guardar para mostrar al final
+            } else {
+              pendientes.push(div); // pedidos pendientes
             }
 
             // Guardar/cambiar estado al marcar checkbox
@@ -148,9 +155,17 @@
                 div.classList.remove("entregado");
                 localStorage.removeItem(`entregado_${numero}`);
               }
+              // Reordenar tarjetas al marcar/desmarcar
+              renderizarTarjetas();
             });
 
-            contenedor.appendChild(div);
+            // Función para renderizar pendientes primero, luego entregados
+            function renderizarTarjetas() {
+              contenedor.innerHTML = "";
+              pendientes.concat(entregados).forEach(card => contenedor.appendChild(card));
+            }
+
+            renderizarTarjetas();
           });
         }
       });
