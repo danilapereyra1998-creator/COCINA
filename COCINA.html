@@ -118,8 +118,8 @@
             // Checkbox de entregado
             const checkboxHTML = `
               <div class="checkbox-container">
-                <input type="checkbox" class="entregado-checkbox">
-                <label>Entregado</label>
+                <input type="checkbox" class="entregado-checkbox" id="entregado_${numero}">
+                <label for="entregado_${numero}">Entregado</label>
               </div>
             `;
 
@@ -132,13 +132,21 @@
               <div class="detalle"><strong>Mozo:</strong> ${mozo}</div>
             `;
 
-            // Manejar el click del checkbox
+            // Leer estado del checkbox desde localStorage
             const checkbox = div.querySelector(".entregado-checkbox");
+            if (localStorage.getItem(`entregado_${numero}`) === "true") {
+              checkbox.checked = true;
+              div.classList.add("entregado");
+            }
+
+            // Guardar/cambiar estado al marcar checkbox
             checkbox.addEventListener("change", () => {
               if (checkbox.checked) {
                 div.classList.add("entregado");
+                localStorage.setItem(`entregado_${numero}`, "true");
               } else {
                 div.classList.remove("entregado");
+                localStorage.removeItem(`entregado_${numero}`);
               }
             });
 
