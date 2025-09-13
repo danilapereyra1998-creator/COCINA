@@ -46,46 +46,50 @@
   <h1>Comandas en Cocina</h1>
   <div id="contenedor" class="grid"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script>
     const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS1vaWcFMzsHoAQePPjYaW5v9PYiuS03MR647H_vCF4XTlPeIAhl1F_DJRCdd7tVMczqpuP0talDttJ/pub?gid=982094745&single=true&output=csv";
 
-    async function cargarDatos() {
-      const respuesta = await fetch(url);
-      const texto = await respuesta.text();
-      const filas = texto.split("\n").slice(1); // saltamos encabezados
+    function cargarDatos() {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const contenedor = document.getElementById("contenedor");
+          contenedor.innerHTML = "";
 
-      const contenedor = document.getElementById("contenedor");
-      contenedor.innerHTML = "";
+          results.data.forEach(fila => {
+            const numero = fila['NÚMERO DE TALONARIO']; // columna A
+            const sinTacc = fila['MENU SIN TACC'];       // columna B
+            const pedido = fila['PEDIDO'];              // columna C
+            const comentarios = fila['COMENTARIOS'];    // columna D
+            const mozo = fila['NOMBRE DEL MOZO'];       // columna E
 
-      filas.forEach(fila => {
-        const columnas = fila.split(",");
-        if (columnas.length >= 4) {
-          const numero = columnas[0];
-          const pedido = columnas[1];
-          const comentarios = columnas[2];
-          const mozo = columnas[3];
+            if (!numero) return; // saltar filas vacías
 
-          const div = document.createElement("div");
-          div.className = "card";
+            const div = document.createElement("div");
+            div.className = "card";
 
-          // Si en comentarios o pedido aparece "SIN TACC" lo pintamos de rojo
-          if (pedido.toLowerCase().includes("sin tacc") || comentarios.toLowerCase().includes("sin tacc")) {
-            div.classList.add("sin-tacc");
-          }
+            // Si es sin TACC lo pintamos de rojo
+            if (sinTacc && sinTacc.toLowerCase().includes("sí")) {
+              div.classList.add("sin-tacc");
+            }
 
-          div.innerHTML = `
-            <div class="pedido">#${numero}</div>
-            <div class="detalle"><strong>Mozo:</strong> ${mozo}</div>
-            <div class="detalle"><strong>Pedido:</strong> ${pedido}</div>
-            <div class="detalle"><strong>Comentarios:</strong> ${comentarios}</div>
-          `;
-          contenedor.appendChild(div);
+            div.innerHTML = `
+              <div class="pedido">#${numero}</div>
+              <div class="detalle"><strong>Pedido:</strong> ${pedido}</div>
+              <div class="detalle"><strong>Comentarios:</strong> ${comentarios}</div>
+              <div class="detalle"><strong>Mozo:</strong> ${mozo}</div>
+            `;
+
+            contenedor.appendChild(div);
+          });
         }
       });
     }
 
     cargarDatos();
-    setInterval(cargarDatos, 15000); // refresca cada 15 segundos
+    setInterval(cargarDatos, 15000);
   </script>
 </body>
 </html>
