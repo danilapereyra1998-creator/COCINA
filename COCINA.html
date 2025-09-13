@@ -53,25 +53,25 @@
     function cargarDatos() {
       Papa.parse(url, {
         download: true,
-        header: true,
         complete: function(results) {
           const contenedor = document.getElementById("contenedor");
           contenedor.innerHTML = "";
 
           results.data.forEach(fila => {
-            const numero = fila['NÚMERO DE TALONARIO']; // columna A
-            const sinTacc = fila['MENU SIN TACC'];       // columna B
-            const pedido = fila['PEDIDO'];              // columna C
-            const comentarios = fila['COMENTARIOS'];    // columna D
-            const mozo = fila['NOMBRE DEL MOZO'];       // columna E
+            // Usamos índice de columna para mayor seguridad
+            const numero = fila[0];     // Columna A
+            const sinTacc = fila[1];    // Columna B
+            const pedido = fila[2];     // Columna C
+            const comentarios = fila[3]; // Columna D
+            const mozo = fila[4];       // Columna E
 
             if (!numero) return; // saltar filas vacías
 
             const div = document.createElement("div");
             div.className = "card";
 
-            // Si es sin TACC lo pintamos de rojo
-            if (sinTacc && sinTacc.toLowerCase().includes("sí")) {
+            // Pintar de rojo si es SIN TACC
+            if (sinTacc && sinTacc.toLowerCase() === "si") {
               div.classList.add("sin-tacc");
             }
 
